@@ -46,8 +46,37 @@ const KanbanStack: React.FC = () => {
       };
 
       setData(newData);
-      return;
     }
+
+    // drag on different kanban card
+    if (sourceColumn.id !== destinationColumn.id) {
+      const sourceTaskIds = Array.from(sourceColumn.taskIds);
+      sourceTaskIds.splice(source.index, 1);
+      const newSourceTaskIds = {
+        ...sourceColumn,
+        taskIds: sourceTaskIds,
+      };
+
+      const destinationTaskIds = Array.from(destinationColumn.taskIds);
+      destinationTaskIds.splice(destination.index, 0, draggableId);
+      const newDestinationTaskIds = {
+        ...destinationColumn,
+        taskIds: destinationTaskIds,
+      };
+
+      const newState = {
+        ...data,
+        columns: {
+          ...data.columns,
+          [sourceColumn.id]: newSourceTaskIds,
+          [destinationColumn.id]: newDestinationTaskIds,
+        },
+      };
+
+      setData(newState);
+    }
+
+    return;
   };
 
   return (
@@ -67,7 +96,7 @@ const KanbanStack: React.FC = () => {
         position="absolute"
         alignItems={"flex-start"}
       >
-        {data.columnOrder.map((columnId: string) => {
+        {data.columnOrder.map((columnId: string): React.ReactNode => {
           const column = data.columns[columnId];
           const tasks = (column.taskIds as string[]).map(
             (taskId: string) => data.tasks[taskId]
