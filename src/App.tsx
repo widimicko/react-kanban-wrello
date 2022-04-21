@@ -1,14 +1,11 @@
 import * as React from "react";
-import {
-  ChakraProvider,
-  Box,
-  theme,
-  CSSReset,
-  Heading,
-} from "@chakra-ui/react";
+import { ChakraProvider, Box, theme, CSSReset } from "@chakra-ui/react";
+
 import backgroundImage from "./assets/images/app-root-background.jpg";
 
-export const App = () => (
+import Header from "./components/Header";
+
+const App: React.FC = () => (
   <ChakraProvider theme={theme}>
     <CSSReset />
     <Box
@@ -18,9 +15,9 @@ export const App = () => (
       height="100vh"
       position="relative"
     >
-      <Heading as="h1" color={"white"}>
-        Hello React & Chakra UI
-      </Heading>
+      <Header />
     </Box>
   </ChakraProvider>
 );
+
+export default App;
