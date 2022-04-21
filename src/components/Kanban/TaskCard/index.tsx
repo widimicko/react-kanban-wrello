@@ -1,6 +1,7 @@
 import React from "react";
 import { Box, Text, Flex } from "@chakra-ui/react";
 import { Draggable } from "react-beautiful-dnd";
+import { GrDrag } from "react-icons/gr";
 
 type TaskCardProps = {
   id: string;
@@ -17,9 +18,14 @@ const TaskCard: React.FC<TaskCardProps> = ({ id, content, index }) => {
           bg="white"
           p={1}
           rounded={2}
+          backgroundColor={snapshot.isDragging ? "blue.50" : "white"}
+          boxShadow={
+            snapshot.isDragging
+              ? "6px 6px 0 rgba(10, 40, 76, .15)"
+              : "0 1px 0 rgba(9, 30, 66, .25)"
+          }
           ref={provided.innerRef}
           {...provided.draggableProps}
-          {...provided.dragHandleProps}
         >
           <Flex alignItems={"center"}>
             <Text
@@ -33,7 +39,9 @@ const TaskCard: React.FC<TaskCardProps> = ({ id, content, index }) => {
               {content}
             </Text>
 
-            <span style={{ color: "black" }}>=</span>
+            <span style={{ color: "black" }} {...provided.dragHandleProps}>
+              <Box as={GrDrag} />
+            </span>
           </Flex>
         </Box>
       )}
