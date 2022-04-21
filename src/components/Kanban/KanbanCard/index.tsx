@@ -10,9 +10,17 @@ type KanbanCardProps = {
   id: string;
   title: string;
   tasks: Task[];
+  handleNewTask: any;
+  handleDeleteTask: any;
 };
 
-const KanbanCard: React.FC<KanbanCardProps> = ({ id, title, tasks = [] }) => {
+const KanbanCard: React.FC<KanbanCardProps> = ({
+  id,
+  title,
+  tasks = [],
+  handleNewTask,
+  handleDeleteTask,
+}) => {
   return (
     <Box width="270px" p={2} bg="blue.200" rounded={4}>
       <Flex direction="column">
@@ -46,8 +54,10 @@ const KanbanCard: React.FC<KanbanCardProps> = ({ id, title, tasks = [] }) => {
                   <TaskCard
                     key={index}
                     index={index}
+                    idColumn={id}
                     id={task.id}
                     content={task.content}
+                    handleDeleteTask={handleDeleteTask}
                   />
                 ))
               ) : (
@@ -57,19 +67,23 @@ const KanbanCard: React.FC<KanbanCardProps> = ({ id, title, tasks = [] }) => {
                   <Text>Drop task here</Text>
                 </>
               )}
-              {title === "To do" && (
-                <Input
-                  size={"sm"}
-                  backgroundColor={"white"}
-                  color="black"
-                  placeholder="Type here to create new task"
-                  _placeholder={{ color: "gray.500" }}
-                />
-              )}
+
               {provided.placeholder}
             </VStack>
           )}
         </Droppable>
+        <form onSubmit={handleNewTask} style={{ marginTop: "15px" }}>
+          <Input
+            name="content"
+            id="content"
+            size={"sm"}
+            backgroundColor={"white"}
+            color="black"
+            placeholder="Type here to create new task"
+            _placeholder={{ color: "gray.500" }}
+          />
+          <input name="columnId" id="columnId" type="hidden" value={id} />
+        </form>
       </Flex>
     </Box>
   );

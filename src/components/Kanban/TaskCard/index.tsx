@@ -1,15 +1,23 @@
 import React from "react";
 import { Box, Text, Flex } from "@chakra-ui/react";
 import { Draggable } from "react-beautiful-dnd";
-import { GrDrag } from "react-icons/gr";
+import { GrDrag, GrTrash } from "react-icons/gr";
 
 type TaskCardProps = {
   id: string;
+  idColumn: string;
   index: number;
   content: string;
+  handleDeleteTask: any;
 };
 
-const TaskCard: React.FC<TaskCardProps> = ({ id, content, index }) => {
+const TaskCard: React.FC<TaskCardProps> = ({
+  id,
+  idColumn,
+  content,
+  index,
+  handleDeleteTask,
+}) => {
   return (
     <Draggable draggableId={id} index={index}>
       {(provided, snapshot) => (
@@ -39,6 +47,13 @@ const TaskCard: React.FC<TaskCardProps> = ({ id, content, index }) => {
               {content}
             </Text>
 
+            <span style={{ color: "black" }}>
+              <Box
+                as={GrTrash}
+                cursor="pointer"
+                onClick={() => handleDeleteTask(id, idColumn)}
+              />
+            </span>
             <span style={{ color: "black" }} {...provided.dragHandleProps}>
               <Box as={GrDrag} />
             </span>

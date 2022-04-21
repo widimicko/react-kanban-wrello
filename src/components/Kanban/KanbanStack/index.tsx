@@ -1,13 +1,19 @@
-import React, { useState } from "react";
+import React from "react";
 import { HStack } from "@chakra-ui/react";
 import { DragDropContext, DropResult } from "react-beautiful-dnd";
+import { nanoid } from "nanoid";
 
 import KanbanCard from "../KanbanCard";
 
 import { initialData } from "../../../data/initial-data";
+import useLocalStorage from "../../../hooks/useLocalStorage";
 
 const KanbanStack: React.FC = () => {
-  const [data, setData] = useState(initialData);
+  const [data, setData] = useLocalStorage("data", initialData);
+
+  React.useEffect(() => {
+    localStorage.setItem("data", JSON.stringify(data));
+  }, [data]);
 
   const onDragEnd = (result: DropResult): void => {
     const { source, destination, draggableId } = result;
@@ -64,7 +70,7 @@ const KanbanStack: React.FC = () => {
         taskIds: destinationTaskIds,
       };
 
-      const newState = {
+      const newData = {
         ...data,
         columns: {
           ...data.columns,
@@ -73,10 +79,54 @@ const KanbanStack: React.FC = () => {
         },
       };
 
-      setData(newState);
+      setData(newData);
     }
 
     return;
+  };
+
+  const handleNewTask = (event: any) => {
+    event.preventDefault();
+
+    const columnId = event.target["columnId"].value;
+    const content = event.target["content"].value;
+
+    if (!content) {
+      return;
+    }
+
+    const newTaskId = nanoid();
+    const newData = {
+      ...data,
+      tasks: {
+        ...data.tasks,
+        [newTaskId]: {
+          id: newTaskId,
+          content: content,
+        },
+      },
+      columns: {
+        ...data.columns,
+        [columnId]: {
+          ...data.columns[columnId],
+          taskIds: [...data.columns[columnId].taskIds, newTaskId],
+        },
+      },
+    };
+
+    setData(newData);
+    event.target["content"].value = "";
+
+    return;
+  };
+
+  const handleDeleteTask = (taskId: string, idColumn: string) => {
+    const index: number = data.columns[idColumn].taskIds.indexOf(
+      taskId as never
+    );
+
+    // TODO: Delete task
+    return alert("This feature is not implemented yet");
   };
 
   return (
@@ -108,6 +158,10 @@ const KanbanStack: React.FC = () => {
               id={column.id}
               title={column.title}
               tasks={tasks}
+              handleNewTask={(event: any) => handleNewTask(event)}
+              handleDeleteTask={(taskId: string, idColumn: string) =>
+                handleDeleteTask(taskId, idColumn)
+              }
             />
           );
         })}
