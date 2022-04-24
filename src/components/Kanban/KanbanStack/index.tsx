@@ -1,136 +1,58 @@
-import React from "react";
-import { HStack } from "@chakra-ui/react";
+import React, { useState, useReducer } from "react";
+import { HStack, Box, Input, Flex, Text } from "@chakra-ui/react";
 import { DragDropContext, DropResult } from "react-beautiful-dnd";
-import { nanoid } from "nanoid";
+
+import * as taskService from "../../../services/taskService";
+import * as cardService from "../../../services/cardService";
 
 import KanbanCard from "../KanbanCard";
 
 import { initialData } from "../../../data/initial-data";
-import useLocalStorage from "../../../hooks/useLocalStorage";
+// import useLocalStorage from "../../../hooks/useLocalStorage";
 
 const KanbanStack: React.FC = () => {
-  const [data, setData] = useLocalStorage("data", initialData);
+  const [data, setData] = useState(initialData);
+  const [, forceUpdate] = useReducer((x) => x + 1, 0);
+  // const [data, setData] = useLocalStorage("data", initialData);
+  console.log("Re-render");
 
-  React.useEffect(() => {
-    localStorage.setItem("data", JSON.stringify(data));
-  }, [data]);
+  // React.useEffect(() => {
+  //   localStorage.setItem("data", JSON.stringify(data));
+  // }, [data]);
 
-  const onDragEnd = (result: DropResult): void => {
-    const { source, destination, draggableId } = result;
-
-    if (!destination) return;
-
-    if (
-      source.droppableId === destination.droppableId &&
-      source.index === destination.index
-    )
-      return;
-
-    const sourceColumn = data.columns[source.droppableId];
-    const destinationColumn = data.columns[destination.droppableId];
-
-    // drag on same kanban card
-    if (sourceColumn.id === destinationColumn.id) {
-      const newTaskIds = Array.from(sourceColumn.taskIds);
-
-      // delete task from list
-      newTaskIds.splice(source.index, 1);
-      // move task to destination index
-      newTaskIds.splice(destination.index, 0, draggableId);
-
-      const newColumn = {
-        ...sourceColumn,
-        taskIds: newTaskIds,
-      };
-
-      const newData = {
-        ...data,
-        columns: {
-          ...data.columns,
-          [newColumn.id]: newColumn,
-        },
-      };
-
-      setData(newData);
-    }
-
-    // drag on different kanban card
-    if (sourceColumn.id !== destinationColumn.id) {
-      const sourceTaskIds = Array.from(sourceColumn.taskIds);
-      sourceTaskIds.splice(source.index, 1);
-      const newSourceTaskIds = {
-        ...sourceColumn,
-        taskIds: sourceTaskIds,
-      };
-
-      const destinationTaskIds = Array.from(destinationColumn.taskIds);
-      destinationTaskIds.splice(destination.index, 0, draggableId);
-      const newDestinationTaskIds = {
-        ...destinationColumn,
-        taskIds: destinationTaskIds,
-      };
-
-      const newData = {
-        ...data,
-        columns: {
-          ...data.columns,
-          [sourceColumn.id]: newSourceTaskIds,
-          [destinationColumn.id]: newDestinationTaskIds,
-        },
-      };
-
-      setData(newData);
-    }
-
-    return;
+  const onTaskDragEnd = (result: DropResult): void => {
+    const newData = taskService.onDragEnd(result, data);
+    setData(newData);
   };
 
   const handleNewTask = (event: any) => {
     event.preventDefault();
-
-    const columnId = event.target["columnId"].value;
-    const content = event.target["content"].value;
-
-    if (!content) {
-      return;
-    }
-
-    const newTaskId = nanoid();
-    const newData = {
-      ...data,
-      tasks: {
-        ...data.tasks,
-        [newTaskId]: {
-          id: newTaskId,
-          content: content,
-        },
-      },
-      columns: {
-        ...data.columns,
-        [columnId]: {
-          ...data.columns[columnId],
-          taskIds: [...data.columns[columnId].taskIds, newTaskId],
-        },
-      },
-    };
-
+    const newData = taskService.create(event, data);
     setData(newData);
     event.target["content"].value = "";
-
-    return;
   };
 
   const handleDeleteTask = (taskId: string, idColumn: string) => {
-    const index: number = data.columns[idColumn].taskIds.indexOf(
-      taskId as never
-    );
+    const newData = taskService.destroy(taskId, idColumn, data);
+    setData(newData);
+    forceUpdate();
+  };
 
-    // TODO: Delete task
-    return alert("This feature is not implemented yet");
+  const handleNewCard = (event: any) => {
+    event.preventDefault();
+    const newData = cardService.create(event, data);
+    setData(newData);
+    event.target["title"].value = "";
+  };
+
+  const handleDeleteCard = (id: string) => {
+    const newData = cardService.destroy(id, data);
+    setData(newData);
+    forceUpdate();
   };
 
   return (
-    <DragDropContext onDragEnd={onDragEnd}>
+    <DragDropContext onDragEnd={onTaskDragEnd}>
       <HStack
         mt="40px"
         p={4}
@@ -162,9 +84,35 @@ const KanbanStack: React.FC = () => {
               handleDeleteTask={(taskId: string, idColumn: string) =>
                 handleDeleteTask(taskId, idColumn)
               }
+              handleDeleteCard={(id: string) => handleDeleteCard(id)}
             />
           );
         })}
+        <Box width="270px" p={2} bg="blue.200" rounded={4}>
+          <Flex direction="column">
+            <Box mb={2}>
+              <Text
+                fontSize={"lg"}
+                fontWeight={500}
+                color="gray.900"
+                isTruncated
+              >
+                Create New Card
+              </Text>
+              <form onSubmit={handleNewCard} style={{ marginTop: "15px" }}>
+                <Input
+                  name="title"
+                  id="title"
+                  size={"sm"}
+                  backgroundColor={"white"}
+                  color="black"
+                  placeholder="Create New Card"
+                  _placeholder={{ color: "gray.500" }}
+                />
+              </form>
+            </Box>
+          </Flex>
+        </Box>
       </HStack>
     </DragDropContext>
   );

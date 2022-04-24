@@ -2,6 +2,7 @@ import React from "react";
 import { Box, Flex, Text, VStack, Input } from "@chakra-ui/react";
 import { Droppable } from "react-beautiful-dnd";
 import { RiDragDropLine } from "react-icons/ri";
+import { GrDrag, GrTrash } from "react-icons/gr";
 
 import { Task } from "../../../data/initial-data";
 import TaskCard from "../TaskCard";
@@ -12,6 +13,7 @@ type KanbanCardProps = {
   tasks: Task[];
   handleNewTask: any;
   handleDeleteTask: any;
+  handleDeleteCard: any;
 };
 
 const KanbanCard: React.FC<KanbanCardProps> = ({
@@ -20,14 +22,39 @@ const KanbanCard: React.FC<KanbanCardProps> = ({
   tasks = [],
   handleNewTask,
   handleDeleteTask,
+  handleDeleteCard,
 }) => {
   return (
     <Box width="270px" p={2} bg="blue.200" rounded={4}>
       <Flex direction="column">
         <Box mb={2}>
-          <Text fontSize={"lg"} fontWeight={500} color="gray.900" isTruncated>
+          <Flex alignItems={"center"}>
+            <Text
+              flex={1}
+              fontSize={"lg"}
+              fontWeight={500}
+              color="gray.900"
+              isTruncated
+            >
+              {title}
+            </Text>
+
+            <span style={{ color: "black" }}>
+              <Box
+                as={GrTrash}
+                cursor="pointer"
+                onClick={() => handleDeleteCard(id)}
+              />
+            </span>
+            <span
+              style={{ color: "black" }} /* {...provided.dragHandleProps} */
+            >
+              <Box as={GrDrag} />
+            </span>
+          </Flex>
+          {/* <Text fontSize={"lg"} fontWeight={500} color="gray.900" isTruncated>
             {title}
-          </Text>
+          </Text> */}
         </Box>
 
         <Droppable droppableId={id}>
