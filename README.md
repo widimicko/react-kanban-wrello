@@ -21,5 +21,9 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 ## Features
 
 - Create new task
+- delete task
 - Drag and Drop task to each card
+- create new card
+- delete card
+- Drag and Drop card (SOON)
 - use local storage to store data
