@@ -1,4 +1,4 @@
-import React, { useState, useReducer } from "react";
+import React, { useReducer } from "react";
 import { HStack, Box, Input, Flex, Text } from "@chakra-ui/react";
 import { DragDropContext, DropResult } from "react-beautiful-dnd";
 
@@ -8,17 +8,16 @@ import * as cardService from "../../../services/cardService";
 import KanbanCard from "../KanbanCard";
 
 import { initialData } from "../../../data/initial-data";
-// import useLocalStorage from "../../../hooks/useLocalStorage";
+import useLocalStorage from "../../../hooks/useLocalStorage";
 
 const KanbanStack: React.FC = () => {
-  const [data, setData] = useState(initialData);
+  // const [data, setData] = useState(initialData);
+  const [data, setData] = useLocalStorage("data", initialData);
   const [, forceUpdate] = useReducer((x) => x + 1, 0);
-  // const [data, setData] = useLocalStorage("data", initialData);
-  console.log("Re-render");
 
-  // React.useEffect(() => {
-  //   localStorage.setItem("data", JSON.stringify(data));
-  // }, [data]);
+  React.useEffect(() => {
+    localStorage.setItem("data", JSON.stringify(data));
+  }, [data]);
 
   const onTaskDragEnd = (result: DropResult): void => {
     const newData = taskService.onDragEnd(result, data);
